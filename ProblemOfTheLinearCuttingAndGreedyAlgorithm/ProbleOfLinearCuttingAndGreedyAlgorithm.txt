@@ -1,0 +1,101 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include "locale.h"
+#include <fstream>
+#include <algorithm>
+using namespace std;
+
+struct Item {
+    int lenght;
+    int value;
+    double profit = static_cast<double>(value) / lenght;
+};
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    ofstream out("out.txt");
+    cout << "-------------------------------Динамическое программирование-------------------------------" << endl;
+    int L=23, n=3;
+    vector<double> l = { 3,7,12 }, c = { 5,12,16 };
+    vector<int>  x(L), phi(L + 1), psi(L + 1);
+    vector<Item> items(n);
+
+    for (int i = 0; i < items.size(); i++) {
+        items[i].lenght = l[i];
+        items[i].value = c[i];
+        items[i].profit= static_cast<double>(items[i].value) / items[i].lenght;
+        x[i] = 0;
+    }
+
+    for (int y = 0; y < L + 1; y++) {
+        phi[y] = 0;
+        psi[y] = 0;
+        cout << "Y=" << y << endl;
+        out << "Y=" << y << endl;
+        for (int j = 0; j < n; j++) {
+            if (items[j].lenght <= y && phi[y] < phi[y - items[j].lenght] + items[j].value) {
+                phi[y] = phi[y - items[j].lenght] + items[j].value;
+                int h = j + 1;
+                psi[y] = h;
+            }
+        }
+        
+        cout << "phi[" << y << "] = " << phi[y] << endl;
+        out << "phi[" << y << "] = " << phi[y] << endl;
+        cout << "psi[" << y << "] = " << psi[y] << endl;
+        out << "psi[" << y << "] = " << psi[y] << endl;
+        cout << endl;
+        out << endl;
+    }
+
+    int y = L;
+    while (phi[y] > 0) {
+        int k = psi[y];
+        x[k - 1] = x[k - 1] + 1;
+        y = y - l[k - 1];
+    }
+    cout << "Количество деталей по типу:" <<endl;
+    out << "Количество деталей по типу:" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "x" << i + 1 << "=" << x[i] << endl;
+        out << "x" << i + 1 << "=" << x[i] << endl;
+    }
+
+    cout << endl;
+    out << endl;
+    //Жадный алгоритм
+    cout << "-------------------------------Жадный алгоритм-------------------------------"<<endl;
+    out << "-------------------------------Жадный алгоритм-------------------------------" << endl;
+    sort(items.begin(), items.end(), [](const Item& lhs, const Item& rhs) {
+        return lhs.profit > rhs.profit;
+        });
+    cout << "После упорядочивания по стоимости единицы длины:"<< endl;
+    out << "После упорядочивания по стоимости единицы длины:" << endl;
+    for (int i = 0; i < items.size(); i++) {
+        cout <<"Для элемента "<<i+1<<" стоимость единицы длины равна = "<< items[i].profit <<", где длина элемента = "<< items[i].lenght<< endl;
+        out << "Для элемента " << i+1 << " стоимость единицы длины равна = " << items[i].profit << ", где длина элемента = " << items[i].lenght << endl;
+    }
+    double value = 0;
+    int capacity = L;
+    for (int i = 0; i < items.size(); i++) {
+        x[i] = 0;
+        while (capacity >= items[i].lenght) {
+            x[i]++;
+            capacity -= items[i].lenght;
+            value += items[i].value;
+        }
+    }
+    cout << "Итоговое значение phi для стоимости: " << value << endl;
+    out << "Итоговое значение phi для стоимости: " << value << endl;
+    cout << endl;
+    out << endl;
+    cout << "Количество деталей по типу:" << endl;
+    out << "Количество деталей по типу:" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "x" << i + 1 << "=" << x[i] << endl;
+        out << "x" << i + 1 << "=" << x[i] << endl;
+    }
+    cout << endl;
+}
